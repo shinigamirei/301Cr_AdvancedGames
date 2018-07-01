@@ -3,17 +3,20 @@
 
 class GameManager //"model" handles the logic of the game
 {
+
 public:
-	GameManager();
 	~GameManager();
+	static GameManager& getInstance();
 
 	void VictoryCheck();
-	void SelectorUpdate(sf::RenderWindow &window);
-	void SpaceChosen(int &player);
+	void SelectorUpdate(sf::RenderWindow &window);//updates the selector location both in graphic space and board logic space dependant on cursor location
+	void SpaceChosen(int &player);//handles what to do when player chooses a space
+
 	int board[3][3];
 	sf::Vector2f selectorLocation;
 	sf::Vector2i selectorBoardLocation;
 	sf::Vector2i mousePosition;
-
+private:
+	GameManager();
 };
 

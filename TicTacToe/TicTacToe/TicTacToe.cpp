@@ -5,7 +5,7 @@
 
 bool chatInput = false;
 BoardViewManager boardViewManager;
-GameManager gameManager;
+GameManager gameManager = GameManager::getInstance();
 int programFunction; //determines if the program is being lauunched as client or server
 
 int main(int argc, char** argv)

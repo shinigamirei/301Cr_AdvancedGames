@@ -6,9 +6,14 @@ GameManager::GameManager()
 {
 }
 
-
 GameManager::~GameManager()
 {
+}
+
+GameManager & GameManager::getInstance()
+{
+		static GameManager instance;
+		return instance;
 }
 
 void GameManager::VictoryCheck()
@@ -69,4 +74,5 @@ void GameManager::SelectorUpdate(sf::RenderWindow &window)
 
 void GameManager::SpaceChosen(int &player)
 {
+
 }
