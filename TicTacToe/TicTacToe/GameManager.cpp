@@ -74,5 +74,5 @@ void GameManager::SelectorUpdate(sf::RenderWindow &window)
 
 void GameManager::SpaceChosen(int &player)
 {
-
+	board[selectorBoardLocation.x][selectorBoardLocation.y] = player;
 }

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include <SFML/Network.hpp>
 #include "GameManager.h"
 #include "BoardViewManager.h"
 
@@ -8,9 +9,26 @@ BoardViewManager boardViewManager;
 GameManager gameManager = GameManager::getInstance();
 int programFunction; //determines if the program is being lauunched as client or server
 
+const unsigned short port = 53000;
+const std::string ipAdress("10.0.74.50");//change to suit your needs
+std::string msgSend;
+
+sf::TcpSocket socket;
+sf::Mutex globalMutex;
+
+
+bool Client(void)
+{
+	if (socket.connect(ipAdress, port) == sf::Socket::Done)
+	{
+		std::cout << "Connected\n";
+		return true;
+	}
+	return false;
+}
+
 int main(int argc, char** argv)
 {
-	
 	std::cout << "press 1 for client, or 2 for server" << std::endl;
 	while (programFunction == 0)
 	{
@@ -19,7 +37,14 @@ int main(int argc, char** argv)
 
 	while (programFunction == 1)
 	{
-		sf::RenderWindow window(sf::VideoMode(600, 400), "SFML works!", sf::Style::Default);//setting style gives us options of what the window has at the top
+		int playerNumber = 1; //default to 1, will be given by server upon connection
+		sf::RenderWindow window(sf::VideoMode(600, 400), "SFML kinda works but in slightly unexpected ways, also tictactoe!", sf::Style::Default);//setting style gives us options of what the window has at the top
+		
+		sf::Socket::Status status = socket.connect(ipAdress, port);
+		if (status != sf::Socket::Done)
+		{
+			// error...
+		}
 
 		//boardManager.LoadSprites();
 		//load all sprites 
@@ -66,16 +91,10 @@ int main(int argc, char** argv)
 		gridSp.setPosition(sf::Vector2f(30, 30));
 		selectorSp.setTexture(selectorTx);
 
-
-		sf::Vector2f crossVeloss(1, 0);//naming is why
+		sf::String chatEntry;
 
 		while (window.isOpen())
 		{
-			/*		crossSp.move(crossVeloss);
-					if (crossSp.getPosition().x > 100)
-						crossVeloss.x = -1;
-					else if (crossSp.getPosition().x < 0)
-						crossVeloss.x = 1; *///for movement test
 			sf::Event event;
 			while (window.pollEvent(event))
 			{
@@ -106,16 +125,46 @@ int main(int argc, char** argv)
 					break;
 				}
 			}
-
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+				gameManager.SpaceChosen(playerNumber);
+			for (int x = 0; x < 3; x++)
+			{
+				for (int y = 0; y < 3; y++)
+				{
+					if (gameManager.board[x][y] == 1)
+					{
+						crossSp.setPosition(sf::Vector2f(30 + (x * 80), 30 + (x * 80)));
+						window.draw(crossSp);
+					}
+					else
+					{
+						naughtSp.setPosition(sf::Vector2f(30 + (x * 80), 30 + (x * 80)));
+					}
+				}
+			}
 			window.clear();
-			window.draw(crossSp); 
-			window.draw(naughtSp);
 			window.draw(frameSp);
 			window.draw(gridSp);
 			gameManager.SelectorUpdate(window);
 			selectorSp.setPosition(gameManager.selectorLocation);
 			window.draw(selectorSp);
 			window.display();
+		}
+	}
+
+	while (programFunction == 2)
+	{
+		int players = 0;
+		while (players < 2)//listens for connections untill both players are in
+		{
+			sf::TcpListener listener;
+			std::cout << "the local adress of the server is:" << sf::IpAddress::getLocalAddress();
+
+			listener.listen(port);
+			listener.accept(socket);
+			players += 1;
+			std::cout << "New client connected: " << socket.getRemoteAddress() << std::endl << socket.getRemoteAddress() << "is player " << players << std::endl;
+
 		}
 	}
 }
