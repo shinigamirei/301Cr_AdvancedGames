@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "BoardViewManager.h"
 
 class GameManager //"model" handles the logic of the game
 {

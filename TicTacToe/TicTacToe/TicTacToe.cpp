@@ -10,12 +10,10 @@ GameManager gameManager = GameManager::getInstance();
 int programFunction; //determines if the program is being lauunched as client or server
 
 const unsigned short port = 53000;
-const std::string ipAdress("10.0.74.50");//change to suit your needs
-std::string msgSend;
+const std::string ipAdress("10.0.74.50");//hardcoded ip adress for the uni pc i did the work on, the server gives the ip when run so replace this ip with the ip that gives 
+bool gameStarted = false; 
 
 sf::TcpSocket socket;
-sf::Mutex globalMutex;
-
 
 bool Client(void)
 {
@@ -46,7 +44,6 @@ int main(int argc, char** argv)
 			// error...
 		}
 
-		//boardManager.LoadSprites();
 		//load all sprites 
 		sf::Sprite crossSp;
 		sf::Texture crossTx;
@@ -63,20 +60,9 @@ int main(int argc, char** argv)
 		sf::Sprite selectorSp;
 		sf::Texture selectorTx;
 
-		crossTx.loadFromFile("../sprites/cross.png");
-		frameTx.loadFromFile("../sprites/frame.png");
-		gridTx.loadFromFile("../sprites/grid.png");
-		naughtTx.loadFromFile("../sprites/naught.png");
-		selectorTx.loadFromFile("../sprites/cursor.png");
-		
-		crossSp.setTexture(crossTx);
-		naughtSp.setTexture(naughtTx);
-		frameSp.setTexture(frameTx);		
-		gridSp.setTexture(gridTx);
-		gridSp.setPosition(sf::Vector2f(30, 30));
-		selectorSp.setTexture(selectorTx);
+		std::string chatEntry;
 
-		sf::String chatEntry;
+		boardViewManager.LoadSprites();
 
 		while (window.isOpen())
 		{
@@ -95,24 +81,29 @@ int main(int argc, char** argv)
 					{
 						std::cout << "enter" << std::endl;
 						chatInput = false;
+
+						sf::Packet packet;
+						sf::Uint16 x = 1;//we use x as a flag to tell the server that the data in this packet is a chat message
+						packet << x << chatEntry;
+						socket.send(packet);
+						
 					}
 					else if (event.key.code == sf::Keyboard::T && chatInput == false)
 					{
 						std::cout << "We Chat Bois" << std::endl;
-						chatInput = true;
-						sf::Uint16 x = 10;
-						std::string s = "hello";
-						double d = 0.6;
-
-						sf::Packet packet;
-						packet << x << s << d;
-						socket.send(packet);
+						
+						chatEntry.clear();
+						chatInput = true;						
 					}
+					break;
 
 				case sf::Event::TextEntered:
-					if (event.text.unicode < 128 && chatInput == true)
-						std::cout << "ASCII character typed: " << static_cast<char>(event.text.unicode) << std::endl;
-
+					if (chatInput == true)
+					{
+						chatEntry += static_cast<char>(event.text.unicode);
+					}
+					break;
+					
 				default:
 					break;
 				}
@@ -127,7 +118,7 @@ int main(int argc, char** argv)
 					{
 						crossSp.setPosition(sf::Vector2f(30 + (x * 80.0), 30 + (x * 80.0)));
 						window.draw(crossSp);
-						std::cout << "cross at " << x << y << std::endl;
+						//std::cout << "cross at " << x << y << std::endl;
 					}
 					else
 					{
@@ -137,36 +128,46 @@ int main(int argc, char** argv)
 				}
 			}
 			window.clear();
-			window.draw(frameSp);
+			boardViewManager.Draw(window);
 			window.draw(gridSp);
 			gameManager.SelectorUpdate(window);
-			selectorSp.setPosition(gameManager.selectorLocation);
+			boardViewManager.selector.setPosition(gameManager.selectorLocation);
 			window.draw(selectorSp);
 			window.display();
 		}
 	}
 
+int players = 0;
 	while (programFunction == 2)
 	{
-		int players = 0;
-		/*		while (players < 2)//listens for connections until both players are in
-				{*/
-		sf::TcpListener listener;
-		std::cout << "the local adress of the server is:" << sf::IpAddress::getLocalAddress();
+		while (players < 2)//listens for connections until both players are in
+		{
+			sf::TcpListener listener;
+			std::cout << "the local adress of the server is:" << sf::IpAddress::getLocalAddress();
 
-		listener.listen(port);
-		listener.accept(socket);
-		players += 1;
-		std::cout << "New client connected: " << socket.getRemoteAddress() << std::endl << socket.getRemoteAddress() << "is player " << players << std::endl;
+			listener.listen(port);
+			listener.accept(socket);
+			players += 1;
+			std::cout << "New client connected: " << socket.getRemoteAddress() << std::endl << socket.getRemoteAddress() << "is player " << players << std::endl;
+		}
 
+		//after players are in handle incoming data in a continuous loop as no other server logic yet
 		sf::Packet packet;
-		socket.receive(packet);
+		
 		sf::Uint16 x;
 		std::string s;
-		double d;
 
-		packet >> x >> s >> d;
-		std::cout << x << s << std::endl;
+		socket.receive(packet);
+		packet >> x >> s;
+		switch (x)
+		{
+		case 0:
+			break;
+		case 1:
+			std::cout << s << std::endl;
+		default:
+			break;
+		}
 
 	}
 }
