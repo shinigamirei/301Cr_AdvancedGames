@@ -1,5 +1,5 @@
 ﻿  TicTacToe.cpp
-i:\advanced games resit\tictactoe\tictactoe\tictactoe.cpp(136): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-i:\advanced games resit\tictactoe\tictactoe\tictactoe.cpp(141): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+i:\advanced games resit\tictactoe\tictactoe\tictactoe.cpp(128): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+i:\advanced games resit\tictactoe\tictactoe\tictactoe.cpp(134): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   TicTacToe.vcxproj -> I:\Advanced Games Resit\TicTacToe\Debug\TicTacToe.exe
   TicTacToe.vcxproj -> I:\Advanced Games Resit\TicTacToe\Debug\TicTacToe.pdb (Partial PDB)

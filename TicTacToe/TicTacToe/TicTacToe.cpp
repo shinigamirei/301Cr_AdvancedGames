@@ -63,26 +63,11 @@ int main(int argc, char** argv)
 		sf::Sprite selectorSp;
 		sf::Texture selectorTx;
 
-		if (!crossTx.loadFromFile("../sprites/cross.png"))
-		{
-			// error...
-		}
-		if (!frameTx.loadFromFile("../sprites/frame.png"))
-		{
-			// error...
-		}
-		if (!gridTx.loadFromFile("../sprites/grid.png"))
-		{
-			// error...
-		}
-		if (!naughtTx.loadFromFile("../sprites/naught.png"))
-		{
-			// error...
-		}
-		if (!selectorTx.loadFromFile("../sprites/cursor.png"))
-		{
-			// error...
-		}
+		crossTx.loadFromFile("../sprites/cross.png");
+		frameTx.loadFromFile("../sprites/frame.png");
+		gridTx.loadFromFile("../sprites/grid.png");
+		naughtTx.loadFromFile("../sprites/naught.png");
+		selectorTx.loadFromFile("../sprites/cursor.png");
 		
 		crossSp.setTexture(crossTx);
 		naughtSp.setTexture(naughtTx);
@@ -115,6 +100,13 @@ int main(int argc, char** argv)
 					{
 						std::cout << "We Chat Bois" << std::endl;
 						chatInput = true;
+						sf::Uint16 x = 10;
+						std::string s = "hello";
+						double d = 0.6;
+
+						sf::Packet packet;
+						packet << x << s << d;
+						socket.send(packet);
 					}
 
 				case sf::Event::TextEntered:
@@ -133,12 +125,14 @@ int main(int argc, char** argv)
 				{
 					if (gameManager.board[x][y] == 1)
 					{
-						crossSp.setPosition(sf::Vector2f(30 + (x * 80), 30 + (x * 80)));
+						crossSp.setPosition(sf::Vector2f(30 + (x * 80.0), 30 + (x * 80.0)));
 						window.draw(crossSp);
+						std::cout << "cross at " << x << y << std::endl;
 					}
 					else
 					{
 						naughtSp.setPosition(sf::Vector2f(30 + (x * 80), 30 + (x * 80)));
+						window.draw(naughtSp);
 					}
 				}
 			}
@@ -155,16 +149,24 @@ int main(int argc, char** argv)
 	while (programFunction == 2)
 	{
 		int players = 0;
-		while (players < 2)//listens for connections untill both players are in
-		{
-			sf::TcpListener listener;
-			std::cout << "the local adress of the server is:" << sf::IpAddress::getLocalAddress();
+		/*		while (players < 2)//listens for connections until both players are in
+				{*/
+		sf::TcpListener listener;
+		std::cout << "the local adress of the server is:" << sf::IpAddress::getLocalAddress();
 
-			listener.listen(port);
-			listener.accept(socket);
-			players += 1;
-			std::cout << "New client connected: " << socket.getRemoteAddress() << std::endl << socket.getRemoteAddress() << "is player " << players << std::endl;
+		listener.listen(port);
+		listener.accept(socket);
+		players += 1;
+		std::cout << "New client connected: " << socket.getRemoteAddress() << std::endl << socket.getRemoteAddress() << "is player " << players << std::endl;
 
-		}
+		sf::Packet packet;
+		socket.receive(packet);
+		sf::Uint16 x;
+		std::string s;
+		double d;
+
+		packet >> x >> s >> d;
+		std::cout << x << s << std::endl;
+
 	}
 }
